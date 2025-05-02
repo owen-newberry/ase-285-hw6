@@ -1,12 +1,14 @@
 'use strict'
 const fs = require('fs');
+const mongoose = require('mongoose');
 const { readFile, writeFile, hash } = require('./utility')
 const { connectDB, User } = require('./db');
 
 async function makepassword(passwords, encryptedPasswords) {
+    let hashedLines; //declared here to avoid scope issues outside of the try-catch block
     try {
         const lines = readFile(passwords);
-        const hashedLines = lines.map(line => {
+        hashedLines = lines.map(line => {
             const [email, password] = line.split(':');
             return `${email}:${hash(password)}`;
         });
@@ -25,7 +27,7 @@ async function makepassword(passwords, encryptedPasswords) {
             { upsert: true }
         );
     }
-    console.log(`Data written to ${outputFile} and MongoDB`);
+    console.log(`Data written to ${encryptedPasswords} and MongoDB`);
     await mongoose.disconnect();
 }
 
