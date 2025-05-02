@@ -1,39 +1,42 @@
-// To unit-test the function that generates 'password.enc.txt', you should
-//  make sure the unit test does the following check.
-// 1. Make sure password.enc.txt does not exist before running the function.
-// 2. Make sure password.enc.txt does exist after running the function.
-// 3. Make sure the contents of password.enc.txt has correct contents.
-// For unit tests, you don't have to have a large input in the beginning.
-// Start with smallest input, and add more contents in the input
-
+require('dotenv').config({ path: '../src/.env'})
+const { describe, test, expect} = require('@jest/globals');
 const p = require('../src/makepassword');
 const u = require('../src/utility');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
-/*
-// Let's say you have a toHash() function in this module
-
-test('Check toHash(): if the email:password is converted into email:hashPassword', () => {
-    const input = ???
-    const output = ???
-    expect(p.toHash(input)).toBe(output);
-});
-*/
+jest.mock('../src/db', () => ({
+    connectDB: jest.fn().mockResolvedValue(true),
+    User: {
+      findOneAndUpdate: jest.fn().mockImplementation(({ email }, { passwordHash }) => {
+        return Promise.resolve({ email, passwordHash });
+      })
+    }
+  }));
 
 describe("makepassword should create file", () => {
-    test('',() => {
+    test('', async () => {
         const fileName = './tests/passwordtest.txt'
         const encFileName = './tests/passwordtest.enc.txt'
 
-        // 1. Make sure password.enc.txt does not exist before running the function.
-        ???
-        
-        p.makepassword(fileName, encFileName)
+        if (fs.existsSync(encFileName)) {
+            fs.unlinkSync(encFileName);
+        }
 
-        // 2. Make sure password.enc.txt does exist after running the function.
-        ???
+        expect(fs.existsSync(encFileName)).toBe(false);
 
-        // 3. Make sure the contents of password.enc.txt has correct contents.
-        ???
-    })
-})
+        await p.makepassword(fileName, encFileName);
+
+        expect(fs.existsSync(encFileName)).toBe(true);
+
+        const lines = u.readFile(fileName);
+        const encLines = u.readFile(encFileName);
+
+        lines.forEach((line, index) => {
+            const [email, password] = line.split(':');
+            const [encEmail, encPassword] = encLines[index].split(':');
+            expect(encEmail).toBe(email);
+            expect(encPassword).toBe(u.hash(password));
+        });
+    });
+});

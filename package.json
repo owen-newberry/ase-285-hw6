@@ -9,5 +9,9 @@
     "jest": "^27.5.1",
     "mongo": "^0.1.0",
     "mongoose": "^8.14.1"
+  },
+  "scripts": {
+    "test": "node node_modules/jest/bin/jest.js",
+    "acceptance": "cd tests && acceptance.bat"
   }
 }

@@ -1,3 +1,5 @@
+cd ..
+
 node src/passwordjs.js password.enc.txt sm.cho@hello.com 123456
 node src/passwordjs.js password.enc.txt john.deacon@good.com bestpassword
 node src/passwordjs.js password.enc.txt alan.may@best.com mypassword

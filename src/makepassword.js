@@ -9,7 +9,7 @@ async function makepassword(passwords, encryptedPasswords) {
     try {
         const lines = readFile(passwords);
         hashedLines = lines.map(line => {
-            const [email, password] = line.split(':');
+            const [email, password] = line.split(':').map(item => item.trim());
             return `${email}:${hash(password)}`;
         });
         writeFile(hashedLines, encryptedPasswords);
